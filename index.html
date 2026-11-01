@@ -68,6 +68,7 @@
                                 <option value="Analisis dan Design">Analisis dan Design</option>
                                 <option value="Sistem Digital">Sistem Digital</option>
                                 <option value="Pemrograman Web">Pemrograman Web</option>
+                                <option value="Mata Kuliah Lainnya">Mata Kuliah Lainnya</option>
                             </select>
                         </div>
                         <div>
@@ -130,7 +131,7 @@
         </main>
     </div>
 
-    <!-- SCRIPT UI (Dipisah agar tidak macet jika Supabase gagal) -->
+    <!-- SCRIPT UI -->
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -157,16 +158,15 @@
 
         try {
             const supabaseUrl = 'https://nkmlgozawuunubanebcg.supabase.co';
-            // PASTIKAN MENGGANTI TEXT DI BAWAH INI DENGAN API KEY (anon) YANG DIAWALI eyJ...
-            const supabaseKey = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rbWxnb3phd3V1bnViYW5lYmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MTE5NTEsImV4cCI6MjEwOTA4Nzk1MX0.p0GEvrBV30BCGfiX-zJNTB0LDavg5SDUDVyMAD7JEFc;
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rbWxnb3phd3V1bnViYW5lYmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MTE5NTEsImV4cCI6MjEwOTA4Nzk1MX0.p0GEvrBV30BCGfiX-zJNTB0LDavg5SDUDVyMAD7JEFc';
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         } catch (error) {
             console.error("Kesalahan inisialisasi Supabase:", error);
         }
 
         window.onload = async function() {
-            if (!supabase || supabaseKey === 'API_KEY_ANDA_YANG_BENAR' || !supabaseKey.startsWith('eyJ')) {
-                document.getElementById('server-status').innerText = 'API Key Salah';
+            if (!supabase) {
+                document.getElementById('server-status').innerText = 'Gagal Inisialisasi';
                 document.getElementById('server-status').className = 'text-red-600 font-bold';
                 return;
             }
