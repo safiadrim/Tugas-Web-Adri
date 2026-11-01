@@ -20,8 +20,9 @@
             </div>
             <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" id="sidebar-nav">
                 <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full text-left block px-4 py-2 bg-indigo-700 rounded-lg transition cursor-pointer font-medium"><i class="fas fa-home mr-2"></i> Dashboard</button>
-                <button onclick="switchTab('materi')" id="btn-materi" class="w-full text-left block px-4 py-2 rounded-lg hover:bg-indigo-600 transition cursor-pointer font-medium"><i class="fas fa-book mr-2"></i> Materi Kuliah</button>
-                <button onclick="switchTab('tugas')" id="btn-tugas" class="w-full text-left block px-4 py-2 rounded-lg hover:bg-indigo-600 transition cursor-pointer font-medium"><i class="fas fa-tasks mr-2"></i> Daftar & Kumpul Tugas</button>
+                <button onclick="switchTab('materi')" id="btn-materi" class="w-full text-left block px-4 py-2 rounded-lg hover:bg-indigo-600 transition cursor-pointer font-medium"><i class="fas fa-book mr-2"></i> Form Materi</button>
+                <button onclick="switchTab('tugas')" id="btn-tugas" class="w-full text-left block px-4 py-2 rounded-lg hover:bg-indigo-600 transition cursor-pointer font-medium"><i class="fas fa-tasks mr-2"></i> Form Tugas</button>
+                <button onclick="switchTab('riwayat')" id="btn-riwayat" class="w-full text-left block px-4 py-2 rounded-lg hover:bg-indigo-600 transition cursor-pointer font-medium"><i class="fas fa-history mr-2"></i> Riwayat</button>
             </nav>
         </aside>
 
@@ -38,7 +39,7 @@
             <div id="tab-dashboard" class="tab-content block">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-600">
                     <h2 class="text-xl font-semibold mb-2 text-indigo-800">Selamat Datang di Portal Tugas</h2>
-                    <p class="text-gray-600">Silakan gunakan menu di sebelah kiri untuk mengelola Materi Kuliah atau Mengumpulkan Tugas Anda.</p>
+                    <p class="text-gray-600">Silakan gunakan menu di sebelah kiri untuk mengelola Materi Kuliah, Mengumpulkan Tugas, atau melihat Riwayat aktivitas Anda.</p>
                 </div>
             </div>
 
@@ -46,26 +47,26 @@
             <div id="tab-tugas" class="tab-content hidden">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-green-500">
                     <h2 class="text-xl font-semibold mb-4 text-green-700 border-b pb-2"><i class="fas fa-upload mr-2"></i>Form Pengumpulan Tugas</h2>
-                    <form class="space-y-4">
+                    <form id="form-tugas" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mata Kuliah</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mata Kuliah <span class="text-red-500">*</span></label>
+                            <select id="input-matkul" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
                                 <option value="">-- Pilih Mata Kuliah --</option>
-                                <option value="analisis_design">Analisis dan Design</option>
-                                <option value="sistem_digital">Sistem Digital</option>
-                                <option value="pemrograman_web">Pemrograman Web</option>
-                                <option value="lainnya">Mata Kuliah Lainnya</option>
+                                <option value="Analisis dan Design">Analisis dan Design</option>
+                                <option value="Sistem Digital">Sistem Digital</option>
+                                <option value="Pemrograman Web">Pemrograman Web</option>
+                                <option value="Mata Kuliah Lainnya">Mata Kuliah Lainnya</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas</label>
-                            <input type="text" placeholder="Masukkan judul tugas (contoh: Tugas Pertemuan 2)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-judul-tugas" required placeholder="Masukkan judul tugas (contoh: Tugas Pertemuan 2)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">File Tugas (PDF/DOCX/ZIP)</label>
-                            <input type="file" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">File Tugas (PDF/DOCX/ZIP) <span class="text-red-500">*</span></label>
+                            <input type="file" id="input-file-tugas" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         </div>
-                        <button type="button" class="w-full md:w-auto bg-green-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                        <button type="submit" class="w-full md:w-auto bg-green-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-green-700 transition">
                             Kumpulkan Tugas
                         </button>
                     </form>
@@ -76,61 +77,48 @@
             <div id="tab-materi" class="tab-content hidden">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-blue-500">
                     <h2 class="text-xl font-semibold mb-4 text-blue-700 border-b pb-2"><i class="fas fa-file-alt mr-2"></i>Form Upload Materi Kuliah</h2>
-                    <form class="space-y-4">
+                    <form id="form-materi" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul Materi</label>
-                            <input type="text" placeholder="Masukkan judul materi" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul Materi <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-judul-materi" required placeholder="Masukkan judul materi" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
-                            <textarea rows="3" placeholder="Tambahkan deskripsi atau catatan untuk materi ini" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <textarea id="input-deskripsi-materi" rows="3" placeholder="Tambahkan deskripsi atau catatan untuk materi ini" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">File Materi (PDF/PPT/DOCX)</label>
-                            <input type="file" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">File Materi (PDF/PPT/DOCX) <span class="text-red-500">*</span></label>
+                            <input type="file" id="input-file-materi" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
-                        <button type="button" class="w-full md:w-auto bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <button type="submit" class="w-full md:w-auto bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                             Upload Materi
                         </button>
                     </form>
                 </div>
             </div>
 
-        </main>
-    </div>
+            <!-- Bagian Riwayat -->
+            <div id="tab-riwayat" class="tab-content hidden">
+                <!-- Tabel Riwayat Tugas -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-purple-500">
+                    <h2 class="text-xl font-semibold mb-4 text-purple-700 border-b pb-2"><i class="fas fa-history mr-2"></i>Riwayat Pengumpulan Tugas</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 text-sm">
+                                    <th class="p-3 border-b">Waktu</th>
+                                    <th class="p-3 border-b">Mata Kuliah</th>
+                                    <th class="p-3 border-b">Judul Tugas</th>
+                                    <th class="p-3 border-b">Nama File</th>
+                                    <th class="p-3 border-b">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-riwayat-tugas">
+                                <!-- Data tugas akan masuk ke sini via JavaScript -->
+                                <tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat pengumpulan tugas.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    <!-- Script untuk interaksi Sidebar -->
-    <script>
-        function switchTab(tabName) {
-            // Sembunyikan semua konten tab
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => {
-                tab.classList.add('hidden');
-                tab.classList.remove('block');
-            });
-
-            // Tampilkan tab yang diklik
-            const targetTab = document.getElementById('tab-' + tabName);
-            if(targetTab) {
-                targetTab.classList.remove('hidden');
-                targetTab.classList.add('block');
-            }
-
-            // Hapus warna latar aktif dari semua tombol menu
-            const buttons = ['dashboard', 'materi', 'tugas'];
-            buttons.forEach(btn => {
-                const buttonEl = document.getElementById('btn-' + btn);
-                buttonEl.classList.remove('bg-indigo-700');
-                buttonEl.classList.add('hover:bg-indigo-600');
-            });
-
-            // Tambahkan warna latar aktif ke tombol yang diklik
-            const activeBtn = document.getElementById('btn-' + tabName);
-            if(activeBtn) {
-                activeBtn.classList.add('bg-indigo-700');
-                activeBtn.classList.remove('hover:bg-indigo-600');
-            }
-        }
-    </script>
-</body>
-</html>
+                <!-- Tabel Riwayat Materi
