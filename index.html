@@ -7,14 +7,25 @@
     <!-- Library CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Library Database Browser yang Lebih Kuat (localForage) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <!-- Library Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        /* Animasi loading sederhana */
+        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.7); z-index: 50; justify-content: center; items-center; }
+        .loading-overlay.active { display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans relative">
+    
+    <!-- Indikator Loading -->
+    <div id="loading" class="loading-overlay">
+        <div class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
+            <i class="fas fa-spinner fa-spin mr-3"></i> Memproses data ke Supabase...
+        </div>
+    </div>
+
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-64 bg-indigo-800 text-white flex flex-col">
@@ -38,7 +49,7 @@
             <header class="flex justify-between items-center mb-8">
                 <h1 class="text-2xl font-bold text-gray-800">Dashboard Perkuliahan</h1>
                 <div class="bg-white px-4 py-2 rounded-lg shadow-sm border text-sm text-gray-600">
-                    <i class="fas fa-clock mr-2"></i> Deadline: 09.00
+                    <i class="fas fa-clock mr-2"></i> Status Server: <span id="server-status" class="text-yellow-600 font-bold">Menghubungkan...</span>
                 </div>
             </header>
 
@@ -46,7 +57,7 @@
             <div id="tab-dashboard" class="tab-content active">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-600">
                     <h2 class="text-xl font-semibold mb-2 text-indigo-800">Selamat Datang di Portal Tugas</h2>
-                    <p class="text-gray-600">Silakan gunakan menu di sebelah kiri untuk mengelola Materi Kuliah, Mengumpulkan Tugas, atau melihat Riwayat aktivitas Anda.</p>
+                    <p class="text-gray-600">Website ini kini telah terhubung ke database Cloud (Supabase). Semua tugas dan materi yang diunggah akan tersimpan permanen.</p>
                 </div>
             </div>
 
@@ -117,12 +128,11 @@
                                     <th class="p-3 border-b">Mata Kuliah</th>
                                     <th class="p-3 border-b">Judul Tugas</th>
                                     <th class="p-3 border-b">Nama File</th>
-                                    <th class="p-3 border-b">Status</th>
                                     <th class="p-3 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-riwayat-tugas">
-                                <!-- Data Tabel Tugas Dimuat dari IndexedDB -->
+                                <tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Memuat data dari server...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -139,210 +149,191 @@
                                     <th class="p-3 border-b">Judul Materi</th>
                                     <th class="p-3 border-b">Deskripsi</th>
                                     <th class="p-3 border-b">Nama File</th>
-                                    <th class="p-3 border-b">Status</th>
                                     <th class="p-3 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-riwayat-materi">
-                                <!-- Data Tabel Materi Dimuat dari IndexedDB -->
+                                <tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Memuat data dari server...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- Script JavaScript dengan IndexedDB -->
+    <!-- Script Koneksi Supabase & Logika -->
     <script>
-        // Array untuk menyimpan data sementara di memori
-        let riwayatTugas = [];
-        let riwayatMateri = [];
+        // 1. Inisialisasi Koneksi Supabase
+        const supabaseUrl = 'https://nkmlgozawuunubanebcg.supabase.co';
+        const supabaseKey = 'sb_publishable_GySaOr-uaMlPDEbiacI_5g_TYzfttbM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 1. Memuat data yang sudah tersimpan saat halaman baru dibuka/refresh
+        const loadingOverlay = document.getElementById('loading');
+        
+        // Memuat data saat halaman dibuka
         window.onload = async function() {
             try {
-                // Mengambil data dari IndexedDB Browser
-                const savedTugas = await localforage.getItem('dataTugasDB');
-                const savedMateri = await localforage.getItem('dataMateriDB');
-                
-                if (savedTugas) riwayatTugas = savedTugas;
-                if (savedMateri) riwayatMateri = savedMateri;
-
-                renderTugas();
-                renderMateri();
+                await fetchData();
+                document.getElementById('server-status').innerText = 'Online';
+                document.getElementById('server-status').className = 'text-green-600 font-bold';
             } catch (err) {
-                console.error("Gagal memuat data dari memori browser:", err);
+                document.getElementById('server-status').innerText = 'Gagal Terhubung';
+                document.getElementById('server-status').className = 'text-red-600 font-bold';
+                alert("Gagal terhubung ke database. Pastikan tabel 'tugas_kuliah' dan 'materi_kuliah' sudah dibuat di Supabase tanpa RLS.");
             }
         };
 
-        // Fungsi berpindah halaman menu
+        // Fungsi Berpindah Tab
         function switchTab(tabName) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-
-            const targetTab = document.getElementById('tab-' + tabName);
-            if(targetTab) targetTab.classList.add('active');
-
-            const buttons = ['dashboard', 'materi', 'tugas', 'riwayat'];
-            buttons.forEach(btn => {
-                const btnElement = document.getElementById('btn-' + btn);
-                if(btnElement) btnElement.classList.remove('bg-indigo-700');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            ['dashboard', 'materi', 'tugas', 'riwayat'].forEach(btn => {
+                document.getElementById('btn-' + btn).classList.remove('bg-indigo-700');
             });
-
-            const activeBtn = document.getElementById('btn-' + tabName);
-            if(activeBtn) activeBtn.classList.add('bg-indigo-700');
+            document.getElementById('btn-' + tabName).classList.add('bg-indigo-700');
         }
 
         function getCurrentTime() {
-            const now = new Date();
-            return now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+            return new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
         }
 
-        // ===================== TUGAS =====================
-        function renderTugas() {
-            const tbody = document.getElementById('tabel-riwayat-tugas');
+        // ======================= FUNGSI DATABASE SUPABASE =======================
+
+        // Mengambil semua data dari server
+        async function fetchData() {
+            // Ambil Data Tugas
+            const { data: dataTugas, error: errTugas } = await supabase.from('tugas_kuliah').select('*').order('waktu', { ascending: false });
+            if (errTugas) throw errTugas;
+            renderTabel('tabel-riwayat-tugas', dataTugas, 'tugas');
+
+            // Ambil Data Materi
+            const { data: dataMateri, error: errMateri } = await supabase.from('materi_kuliah').select('*').order('waktu', { ascending: false });
+            if (errMateri) throw errMateri;
+            renderTabel('tabel-riwayat-materi', dataMateri, 'materi');
+        }
+
+        // Menampilkan data ke dalam tabel HTML
+        function renderTabel(idTabel, data, tipe) {
+            const tbody = document.getElementById(idTabel);
             tbody.innerHTML = '';
             
-            if (riwayatTugas.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat pengumpulan tugas.</td></tr>`;
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat.</td></tr>`;
                 return;
             }
 
-            riwayatTugas.forEach((item, index) => {
-                // Konversi file asli menjadi URL agar bisa di-download lagi
-                let fileURL = "#";
-                if(item.fileObj) fileURL = URL.createObjectURL(item.fileObj);
-                
+            data.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 border-b text-sm text-gray-600">${item.waktu}</td>
-                    <td class="p-3 border-b font-medium text-gray-800">${item.matkul}</td>
-                    <td class="p-3 border-b text-gray-700">${item.judul}</td>
-                    <td class="p-3 border-b text-sm text-gray-500 truncate max-w-[150px]" title="${item.fileName}"><i class="fas fa-file-alt mr-1"></i>${item.fileName}</td>
-                    <td class="p-3 border-b"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Terkumpul</span></td>
-                    <td class="p-3 border-b text-center space-x-3">
-                        <a href="${fileURL}" download="${item.fileName}" class="text-blue-500 hover:text-blue-700 transition" title="Download"><i class="fas fa-download"></i></a>
-                        <button type="button" onclick="editTugas(${index})" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button type="button" onclick="deleteTugas(${index})" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
+                if (tipe === 'tugas') {
+                    tr.innerHTML = `
+                        <td class="p-3 border-b text-sm text-gray-600">${item.waktu}</td>
+                        <td class="p-3 border-b font-medium text-gray-800">${item.mata_kuliah}</td>
+                        <td class="p-3 border-b text-gray-700">${item.judul}</td>
+                        <td class="p-3 border-b text-sm text-gray-500"><i class="fas fa-file-alt mr-1"></i>${item.nama_file}</td>
+                        <td class="p-3 border-b text-center space-x-3">
+                            <a href="${item.file_url}" target="_blank" class="text-blue-500 hover:text-blue-700 transition" title="Buka/Download"><i class="fas fa-download"></i></a>
+                            <button onclick="hapusData('${item.nama_file}', 'tugas_kuliah')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-3 border-b text-sm text-gray-600">${item.waktu}</td>
+                        <td class="p-3 border-b font-medium text-gray-800">${item.judul}</td>
+                        <td class="p-3 border-b text-sm text-gray-600 truncate max-w-[150px]" title="${item.deskripsi}">${item.deskripsi}</td>
+                        <td class="p-3 border-b text-sm text-gray-500"><i class="fas fa-file-archive mr-1"></i>${item.nama_file}</td>
+                        <td class="p-3 border-b text-center space-x-3">
+                            <a href="${item.file_url}" target="_blank" class="text-blue-500 hover:text-blue-700 transition" title="Buka/Download"><i class="fas fa-download"></i></a>
+                            <button onclick="hapusData('${item.nama_file}', 'materi_kuliah')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                }
                 tbody.appendChild(tr);
             });
         }
 
-        async function deleteTugas(index, ask = true) {
-            if (ask && !confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
-            
-            riwayatTugas.splice(index, 1);
-            await localforage.setItem('dataTugasDB', riwayatTugas); // Simpan perubahan ke DB
-            renderTugas();
+        // Mengunggah file ke Storage, lalu menyimpan URL-nya ke Tabel
+        async function submitKeSupabase(tabelDB, payloadTeks, file) {
+            loadingOverlay.classList.add('active');
+            try {
+                // 1. Upload File ke Storage (bucket: berkas_tugas)
+                const pathUnik = Date.now() + "_" + file.name.replace(/\s+/g, "_");
+                const { error: errUpload } = await supabase.storage.from('berkas_tugas').upload(pathUnik, file);
+                if (errUpload) throw errUpload;
+
+                // 2. Dapatkan Public URL
+                const { data: urlData } = supabase.storage.from('berkas_tugas').getPublicUrl(pathUnik);
+                const publicUrl = urlData.publicUrl;
+
+                // 3. Masukkan data ke Database Tabel
+                payloadTeks.file_url = publicUrl;
+                payloadTeks.nama_file = pathUnik; // Pakai nama unik agar tidak bentrok saat dihapus
+                
+                const { error: errInsert } = await supabase.from(tabelDB).insert([payloadTeks]);
+                if (errInsert) throw errInsert;
+
+                alert('Berhasil diunggah ke server!');
+                fetchData(); // Refresh tabel
+                switchTab('riwayat');
+            } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan. Pastikan Bucket 'berkas_tugas' sudah dibuat & diset Public.");
+            } finally {
+                loadingOverlay.classList.remove('active');
+            }
         }
 
-        function editTugas(index) {
-            const data = riwayatTugas[index];
-            document.getElementById('input-matkul').value = data.matkul;
-            document.getElementById('input-judul-tugas').value = data.judul;
-            
-            alert('Silakan perbarui isian Anda dan upload ulang filenya.');
-            deleteTugas(index, false); // Hapus otomatis file lama
-            switchTab('tugas');
+        // Hapus Data dari Tabel & Storage
+        async function hapusData(namaFile, tabelDB) {
+            if (!confirm('Apakah Anda yakin ingin menghapus file ini dari server?')) return;
+            loadingOverlay.classList.add('active');
+            try {
+                // Hapus dari Storage
+                await supabase.storage.from('berkas_tugas').remove([namaFile]);
+                // Hapus dari Tabel
+                await supabase.from(tabelDB).delete().eq('nama_file', namaFile);
+                
+                fetchData(); // Refresh tabel
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menghapus data.");
+            } finally {
+                loadingOverlay.classList.remove('active');
+            }
         }
 
-        document.getElementById('form-tugas').addEventListener('submit', async function(e) {
+        // ======================= EVENT LISTENER FORM =======================
+
+        // Submit Tugas
+        document.getElementById('form-tugas').addEventListener('submit', function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('input-file-tugas');
             if (!fileInput.files.length) return;
-            
-            const file = fileInput.files[0];
-            const newData = {
+
+            const payload = {
                 waktu: getCurrentTime(),
-                matkul: document.getElementById('input-matkul').value,
-                judul: document.getElementById('input-judul-tugas').value,
-                fileName: file.name,
-                fileObj: file // Menyimpan wujud file aslinya langsung!
+                mata_kuliah: document.getElementById('input-matkul').value,
+                judul: document.getElementById('input-judul-tugas').value
             };
             
-            riwayatTugas.unshift(newData); // Tambah ke daftar teratas
-            await localforage.setItem('dataTugasDB', riwayatTugas); // Simpan ke DB browser
-            
-            alert('Tugas berhasil dikumpulkan secara permanen di browser!');
+            submitKeSupabase('tugas_kuliah', payload, fileInput.files[0]);
             this.reset();
-            renderTugas();
-            switchTab('riwayat');
         });
 
-        // ===================== MATERI =====================
-        function renderMateri() {
-            const tbody = document.getElementById('tabel-riwayat-materi');
-            tbody.innerHTML = '';
-            
-            if (riwayatMateri.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat upload materi.</td></tr>`;
-                return;
-            }
-
-            riwayatMateri.forEach((item, index) => {
-                let fileURL = "#";
-                if(item.fileObj) fileURL = URL.createObjectURL(item.fileObj);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 border-b text-sm text-gray-600">${item.waktu}</td>
-                    <td class="p-3 border-b font-medium text-gray-800">${item.judul}</td>
-                    <td class="p-3 border-b text-sm text-gray-600 truncate max-w-[150px]" title="${item.deskripsi}">${item.deskripsi}</td>
-                    <td class="p-3 border-b text-sm text-gray-500 truncate max-w-[150px]" title="${item.fileName}"><i class="fas fa-file-archive mr-1"></i>${item.fileName}</td>
-                    <td class="p-3 border-b"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">Ter-upload</span></td>
-                    <td class="p-3 border-b text-center space-x-3">
-                        <a href="${fileURL}" download="${item.fileName}" class="text-blue-500 hover:text-blue-700 transition" title="Download"><i class="fas fa-download"></i></a>
-                        <button type="button" onclick="editMateri(${index})" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button type="button" onclick="deleteMateri(${index})" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function deleteMateri(index, ask = true) {
-            if (ask && !confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
-            
-            riwayatMateri.splice(index, 1);
-            await localforage.setItem('dataMateriDB', riwayatMateri);
-            renderMateri();
-        }
-
-        function editMateri(index) {
-            const data = riwayatMateri[index];
-            document.getElementById('input-judul-materi').value = data.judul;
-            document.getElementById('input-deskripsi-materi').value = data.deskripsi === '-' ? '' : data.deskripsi;
-            
-            alert('Silakan perbarui isian Anda dan upload ulang filenya.');
-            deleteMateri(index, false);
-            switchTab('materi');
-        }
-
-        document.getElementById('form-materi').addEventListener('submit', async function(e) {
+        // Submit Materi
+        document.getElementById('form-materi').addEventListener('submit', function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('input-file-materi');
             if (!fileInput.files.length) return;
-            
-            const file = fileInput.files[0];
-            const newData = {
+
+            const payload = {
                 waktu: getCurrentTime(),
                 judul: document.getElementById('input-judul-materi').value,
-                deskripsi: document.getElementById('input-deskripsi-materi').value || '-',
-                fileName: file.name,
-                fileObj: file // Menyimpan wujud file aslinya langsung!
+                deskripsi: document.getElementById('input-deskripsi-materi').value || '-'
             };
             
-            riwayatMateri.unshift(newData);
-            await localforage.setItem('dataMateriDB', riwayatMateri);
-            
-            alert('Materi berhasil diupload secara permanen di browser!');
+            submitKeSupabase('materi_kuliah', payload, fileInput.files[0]);
             this.reset();
-            renderMateri();
-            switchTab('riwayat');
         });
     </script>
 </body>
