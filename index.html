@@ -39,7 +39,7 @@
                 </div>
             </header>
 
-            <!-- Bagian Dashboard (Welcome Screen) -->
+            <!-- Bagian Dashboard -->
             <div id="tab-dashboard" class="tab-content active">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-600">
                     <h2 class="text-xl font-semibold mb-2 text-indigo-800">Selamat Datang di Portal Tugas</h2>
@@ -47,7 +47,7 @@
                 </div>
             </div>
 
-            <!-- Bagian Form Pengumpulan Tugas -->
+            <!-- Bagian Form Tugas -->
             <div id="tab-tugas" class="tab-content">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-green-500">
                     <h2 class="text-xl font-semibold mb-4 text-green-700 border-b pb-2"><i class="fas fa-upload mr-2"></i>Form Pengumpulan Tugas</h2>
@@ -64,7 +64,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-judul-tugas" required placeholder="Masukkan judul tugas (contoh: Tugas Pertemuan 2)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <input type="text" id="input-judul-tugas" required placeholder="Masukkan judul tugas" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">File Tugas (PDF/DOCX/ZIP) <span class="text-red-500">*</span></label>
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <!-- Bagian Form Upload Materi -->
+            <!-- Bagian Form Materi -->
             <div id="tab-materi" class="tab-content">
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-blue-500">
                     <h2 class="text-xl font-semibold mb-4 text-blue-700 border-b pb-2"><i class="fas fa-file-alt mr-2"></i>Form Upload Materi Kuliah</h2>
@@ -88,7 +88,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
-                            <textarea id="input-deskripsi-materi" rows="3" placeholder="Tambahkan deskripsi atau catatan untuk materi ini" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <textarea id="input-deskripsi-materi" rows="3" placeholder="Tambahkan deskripsi atau catatan" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">File Materi (PDF/PPT/DOCX) <span class="text-red-500">*</span></label>
@@ -107,7 +107,7 @@
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-purple-500">
                     <h2 class="text-xl font-semibold mb-4 text-purple-700 border-b pb-2"><i class="fas fa-history mr-2"></i>Riwayat Pengumpulan Tugas</h2>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse min-w-max">
                             <thead>
                                 <tr class="bg-gray-100 text-gray-700 text-sm">
                                     <th class="p-3 border-b">Waktu</th>
@@ -115,10 +115,11 @@
                                     <th class="p-3 border-b">Judul Tugas</th>
                                     <th class="p-3 border-b">Nama File</th>
                                     <th class="p-3 border-b">Status</th>
+                                    <th class="p-3 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-riwayat-tugas">
-                                <tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat pengumpulan tugas.</td></tr>
+                                <tr id="empty-tugas"><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat pengumpulan tugas.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -128,7 +129,7 @@
                 <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-500">
                     <h2 class="text-xl font-semibold mb-4 text-indigo-700 border-b pb-2"><i class="fas fa-history mr-2"></i>Riwayat Upload Materi</h2>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse min-w-max">
                             <thead>
                                 <tr class="bg-gray-100 text-gray-700 text-sm">
                                     <th class="p-3 border-b">Waktu</th>
@@ -136,10 +137,11 @@
                                     <th class="p-3 border-b">Deskripsi</th>
                                     <th class="p-3 border-b">Nama File</th>
                                     <th class="p-3 border-b">Status</th>
+                                    <th class="p-3 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-riwayat-materi">
-                                <tr><td colspan="5" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat upload materi.</td></tr>
+                                <tr id="empty-materi"><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat upload materi.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -152,99 +154,158 @@
     <!-- Script JavaScript untuk Interaksi -->
     <script>
         function switchTab(tabName) {
-            // 1. Sembunyikan semua konten tab
             const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
+            tabs.forEach(tab => tab.classList.remove('active'));
 
-            // 2. Tampilkan tab yang dipilih
             const targetTab = document.getElementById('tab-' + tabName);
-            if(targetTab) {
-                targetTab.classList.add('active');
-            }
+            if(targetTab) targetTab.classList.add('active');
 
-            // 3. Hapus warna aktif (bg-indigo-700) dari SEMUA tombol di sidebar
             const buttons = ['dashboard', 'materi', 'tugas', 'riwayat'];
             buttons.forEach(btn => {
                 const btnElement = document.getElementById('btn-' + btn);
-                if(btnElement) {
-                    btnElement.classList.remove('bg-indigo-700');
-                }
+                if(btnElement) btnElement.classList.remove('bg-indigo-700');
             });
 
-            // 4. Tambahkan warna aktif HANYA pada tombol yang sedang diklik
             const activeBtn = document.getElementById('btn-' + tabName);
-            if(activeBtn) {
-                activeBtn.classList.add('bg-indigo-700');
-            }
+            if(activeBtn) activeBtn.classList.add('bg-indigo-700');
         }
-
-        // Variabel untuk mengecek apakah tabel masih kosong
-        let tugasCount = 0;
-        let materiCount = 0;
 
         function getCurrentTime() {
             const now = new Date();
             return now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
         }
 
-        // Fungsi Submit Tugas
+        // Fungsi Global untuk Hapus Baris
+        function deleteRow(btn, type) {
+            if(confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                const tr = btn.closest('tr');
+                const tbody = tr.parentElement;
+                
+                // Bebaskan memory URL file sebelum dihapus
+                const linkDownload = tr.querySelector('a.download-link');
+                if(linkDownload) URL.revokeObjectURL(linkDownload.href);
+                
+                tr.remove();
+                
+                // Tampilkan pesan kosong jika tabel tidak ada isinya
+                if(tbody.children.length === 0) {
+                    const emptyTr = document.createElement('tr');
+                    emptyTr.innerHTML = `<td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat.</td>`;
+                    tbody.appendChild(emptyTr);
+                }
+            }
+        }
+
+        // Fungsi Edit Tugas
+        function editTugas(btn) {
+            const matkul = btn.getAttribute('data-matkul');
+            const judul = btn.getAttribute('data-judul');
+            
+            document.getElementById('input-matkul').value = matkul;
+            document.getElementById('input-judul-tugas').value = judul;
+            
+            alert('Mode Edit: Silakan perbarui data dan upload kembali file tugas Anda (File tidak bisa diisi otomatis karena sistem keamanan browser).');
+            
+            // Hapus data lama tanpa konfirmasi, lalu arahkan ke form
+            btn.closest('tr').remove();
+            const tbody = document.getElementById('tabel-riwayat-tugas');
+            if(tbody.children.length === 0) {
+                tbody.innerHTML = `<tr id="empty-tugas"><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat pengumpulan tugas.</td></tr>`;
+            }
+            
+            switchTab('tugas');
+        }
+
+        // Fungsi Edit Materi
+        function editMateri(btn) {
+            const judul = btn.getAttribute('data-judul');
+            const deskripsi = btn.getAttribute('data-deskripsi');
+            
+            document.getElementById('input-judul-materi').value = judul;
+            document.getElementById('input-deskripsi-materi').value = deskripsi === '-' ? '' : deskripsi;
+            
+            alert('Mode Edit: Silakan perbarui data dan upload kembali file materi Anda.');
+            
+            btn.closest('tr').remove();
+            const tbody = document.getElementById('tabel-riwayat-materi');
+            if(tbody.children.length === 0) {
+                tbody.innerHTML = `<tr id="empty-materi"><td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat upload materi.</td></tr>`;
+            }
+            
+            switchTab('materi');
+        }
+
+        // --- SUBMIT TUGAS ---
         document.getElementById('form-tugas').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const matkul = document.getElementById('input-matkul').value;
             const judul = document.getElementById('input-judul-tugas').value;
-            const fileInput = document.getElementById('input-file-tugas').value;
-            const fileName = fileInput.split('\\').pop() || 'File terpilih';
+            
+            // Mengambil file asli untuk didownload
+            const fileInput = document.getElementById('input-file-tugas');
+            const file = fileInput.files[0];
+            const fileName = file.name;
+            const fileURL = URL.createObjectURL(file);
             
             const tbody = document.getElementById('tabel-riwayat-tugas');
-            
-            if(tugasCount === 0) tbody.innerHTML = ''; 
+            const emptyState = document.getElementById('empty-tugas') || tbody.querySelector('td[colspan="6"]');
+            if(emptyState) emptyState.parentElement.remove(); 
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="p-3 border-b text-sm text-gray-600">${getCurrentTime()}</td>
                 <td class="p-3 border-b font-medium text-gray-800">${matkul}</td>
                 <td class="p-3 border-b text-gray-700">${judul}</td>
-                <td class="p-3 border-b text-sm text-gray-500"><i class="fas fa-file-alt mr-1"></i>${fileName}</td>
+                <td class="p-3 border-b text-sm text-gray-500 truncate max-w-[150px]" title="${fileName}"><i class="fas fa-file-alt mr-1"></i>${fileName}</td>
                 <td class="p-3 border-b"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Terkumpul</span></td>
+                <td class="p-3 border-b text-center space-x-3">
+                    <a href="${fileURL}" download="${fileName}" class="download-link text-blue-500 hover:text-blue-700 transition" title="Download/Buka"><i class="fas fa-download"></i></a>
+                    <button onclick="editTugas(this)" data-matkul="${matkul}" data-judul="${judul}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteRow(this, 'tugas')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                </td>
             `;
             tbody.prepend(tr);
-            tugasCount++;
 
             alert('Tugas berhasil dikumpulkan!');
             this.reset();
-            switchTab('riwayat'); // Pindah otomatis ke tab riwayat
+            switchTab('riwayat');
         });
 
-        // Fungsi Submit Materi
+        // --- SUBMIT MATERI ---
         document.getElementById('form-materi').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const judul = document.getElementById('input-judul-materi').value;
             const deskripsi = document.getElementById('input-deskripsi-materi').value || '-';
-            const fileInput = document.getElementById('input-file-materi').value;
-            const fileName = fileInput.split('\\').pop() || 'File terpilih';
+            
+            const fileInput = document.getElementById('input-file-materi');
+            const file = fileInput.files[0];
+            const fileName = file.name;
+            const fileURL = URL.createObjectURL(file);
             
             const tbody = document.getElementById('tabel-riwayat-materi');
-            
-            if(materiCount === 0) tbody.innerHTML = ''; 
+            const emptyState = document.getElementById('empty-materi') || tbody.querySelector('td[colspan="6"]');
+            if(emptyState) emptyState.parentElement.remove(); 
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="p-3 border-b text-sm text-gray-600">${getCurrentTime()}</td>
                 <td class="p-3 border-b font-medium text-gray-800">${judul}</td>
-                <td class="p-3 border-b text-sm text-gray-600">${deskripsi}</td>
-                <td class="p-3 border-b text-sm text-gray-500"><i class="fas fa-file-archive mr-1"></i>${fileName}</td>
+                <td class="p-3 border-b text-sm text-gray-600 truncate max-w-[150px]" title="${deskripsi}">${deskripsi}</td>
+                <td class="p-3 border-b text-sm text-gray-500 truncate max-w-[150px]" title="${fileName}"><i class="fas fa-file-archive mr-1"></i>${fileName}</td>
                 <td class="p-3 border-b"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">Ter-upload</span></td>
+                <td class="p-3 border-b text-center space-x-3">
+                    <a href="${fileURL}" download="${fileName}" class="download-link text-blue-500 hover:text-blue-700 transition" title="Download/Buka"><i class="fas fa-download"></i></a>
+                    <button onclick="editMateri(this)" data-judul="${judul}" data-deskripsi="${deskripsi}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteRow(this, 'materi')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                </td>
             `;
             tbody.prepend(tr);
-            materiCount++;
 
             alert('Materi berhasil diupload!');
             this.reset();
-            switchTab('riwayat'); // Pindah otomatis ke tab riwayat
+            switchTab('riwayat');
         });
     </script>
 </body>
