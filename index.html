@@ -181,17 +181,15 @@
                 const tr = btn.closest('tr');
                 const tbody = tr.parentElement;
                 
-                // Bebaskan memory URL file sebelum dihapus
                 const linkDownload = tr.querySelector('a.download-link');
                 if(linkDownload) URL.revokeObjectURL(linkDownload.href);
                 
                 tr.remove();
                 
-                // Tampilkan pesan kosong jika tabel tidak ada isinya
                 if(tbody.children.length === 0) {
-                    const emptyTr = document.createElement('tr');
-                    emptyTr.innerHTML = `<td colspan="6" class="p-4 text-center text-gray-500 text-sm">Belum ada riwayat.</td>`;
-                    tbody.appendChild(emptyTr);
+                    const emptyId = type === 'tugas' ? 'empty-tugas' : 'empty-materi';
+                    const emptyMsg = type === 'tugas' ? 'Belum ada riwayat pengumpulan tugas.' : 'Belum ada riwayat upload materi.';
+                    tbody.innerHTML = `<tr id="${emptyId}"><td colspan="6" class="p-4 text-center text-gray-500 text-sm">${emptyMsg}</td></tr>`;
                 }
             }
         }
@@ -206,7 +204,6 @@
             
             alert('Mode Edit: Silakan perbarui data dan upload kembali file tugas Anda (File tidak bisa diisi otomatis karena sistem keamanan browser).');
             
-            // Hapus data lama tanpa konfirmasi, lalu arahkan ke form
             btn.closest('tr').remove();
             const tbody = document.getElementById('tabel-riwayat-tugas');
             if(tbody.children.length === 0) {
@@ -242,15 +239,20 @@
             const matkul = document.getElementById('input-matkul').value;
             const judul = document.getElementById('input-judul-tugas').value;
             
-            // Mengambil file asli untuk didownload
             const fileInput = document.getElementById('input-file-tugas');
+            if (!fileInput.files.length) return; // Mencegah error jika tidak ada file
+            
             const file = fileInput.files[0];
             const fileName = file.name;
             const fileURL = URL.createObjectURL(file);
             
             const tbody = document.getElementById('tabel-riwayat-tugas');
-            const emptyState = document.getElementById('empty-tugas') || tbody.querySelector('td[colspan="6"]');
-            if(emptyState) emptyState.parentElement.remove(); 
+            
+            // Perbaikan Logika Penghapusan Baris Kosong
+            const emptyState = document.getElementById('empty-tugas');
+            if(emptyState) {
+                emptyState.remove(); 
+            }
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -261,8 +263,8 @@
                 <td class="p-3 border-b"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Terkumpul</span></td>
                 <td class="p-3 border-b text-center space-x-3">
                     <a href="${fileURL}" download="${fileName}" class="download-link text-blue-500 hover:text-blue-700 transition" title="Download/Buka"><i class="fas fa-download"></i></a>
-                    <button onclick="editTugas(this)" data-matkul="${matkul}" data-judul="${judul}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteRow(this, 'tugas')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                    <button type="button" onclick="editTugas(this)" data-matkul="${matkul}" data-judul="${judul}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="deleteRow(this, 'tugas')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
                 </td>
             `;
             tbody.prepend(tr);
@@ -280,13 +282,19 @@
             const deskripsi = document.getElementById('input-deskripsi-materi').value || '-';
             
             const fileInput = document.getElementById('input-file-materi');
+            if (!fileInput.files.length) return;
+            
             const file = fileInput.files[0];
             const fileName = file.name;
             const fileURL = URL.createObjectURL(file);
             
             const tbody = document.getElementById('tabel-riwayat-materi');
-            const emptyState = document.getElementById('empty-materi') || tbody.querySelector('td[colspan="6"]');
-            if(emptyState) emptyState.parentElement.remove(); 
+            
+            // Perbaikan Logika Penghapusan Baris Kosong
+            const emptyState = document.getElementById('empty-materi');
+            if(emptyState) {
+                emptyState.remove(); 
+            }
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -297,8 +305,8 @@
                 <td class="p-3 border-b"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">Ter-upload</span></td>
                 <td class="p-3 border-b text-center space-x-3">
                     <a href="${fileURL}" download="${fileName}" class="download-link text-blue-500 hover:text-blue-700 transition" title="Download/Buka"><i class="fas fa-download"></i></a>
-                    <button onclick="editMateri(this)" data-judul="${judul}" data-deskripsi="${deskripsi}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteRow(this, 'materi')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                    <button type="button" onclick="editMateri(this)" data-judul="${judul}" data-deskripsi="${deskripsi}" class="text-yellow-500 hover:text-yellow-700 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" onclick="deleteRow(this, 'materi')" class="text-red-500 hover:text-red-700 transition" title="Hapus"><i class="fas fa-trash"></i></button>
                 </td>
             `;
             tbody.prepend(tr);
